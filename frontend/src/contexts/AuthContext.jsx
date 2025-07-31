@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useLogin } from '../hooks/useLogin';
 import { createLogger } from '../utils/logger';
+import { canisterId as socialGraphCanisterId, createActor as createSocialGraphActor } from '../declarations/socialgraph';
 
 const logger = createLogger('AuthContext');
 
@@ -8,37 +9,25 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [backendActor, setBackendActor] = useState(null);
-  const [socialGraphActor, setSocialGraphActor] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userPrincipal, setUserPrincipal] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
+  const [socialGraphActor, setSocialGraphActor] = useState(null);
   const [profileForm, setProfileForm] = useState({ username: '', bio: '' });
   const [usernameAvailability, setUsernameAvailability] = useState(null);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isSettingProfile, setIsSettingProfile] = useState(false);
 
   const handleBackendActorSet = async (actor, principal, agent) => {
-    logger.info('handleBackendActorSet called', {
-      actor: !!actor,
-      principal,
-      principalType: typeof principal,
-      agent: !!agent
-    });
-
+    logger.info('Setting backend actor', { principal });
     setBackendActor(actor);
     setUserPrincipal(principal);
     setIsLoggedIn(true);
 
-    logger.info('Authentication state updated', {
-      isLoggedIn: true,
-      userPrincipal: principal
-    });
-
     // Create socialGraphActor with the same identity
     try {
       logger.info('Creating socialGraphActor with user identity');
-      const { canisterId, createActor } = await import('../declarations/socialgraph');
-      const socialGraphActor = createActor(canisterId, { agent });
+      const socialGraphActor = createSocialGraphActor(socialGraphCanisterId, { agent });
       setSocialGraphActor(socialGraphActor);
       logger.info('SocialGraphActor created with user identity');
     } catch (socialGraphError) {

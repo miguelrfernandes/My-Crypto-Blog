@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import PostList from './PostList';
 import { useAuth } from '../contexts/AuthContext';
 import { createLoggingUtils } from '../utils/loggingUtils';
+import { Principal } from '@dfinity/principal';
+import { backend } from '../declarations/backend';
 
 const logging = createLoggingUtils('Profile');
 
@@ -21,8 +23,6 @@ function Profile({ contentActor }) {
   useEffect(() => {
     loadProfileData();
   }, [username, contentActor]);
-
-
 
   const checkFollowStatus = async () => {
     logging.logLifecycle('checkFollowStatus called', {
@@ -43,12 +43,10 @@ function Profile({ contentActor }) {
 
     try {
       // Convert string principal to Principal object
-      const { Principal } = await import('@dfinity/principal');
       const currentUserPrincipal = Principal.fromText(userPrincipal);
       logging.logInfo('Current user principal created', { principal: currentUserPrincipal.toText() });
       
       // Get the principal for the target user
-      const { backend } = await import('../declarations/backend');
       logging.logInfo('Fetching principal for username', { username: profileData.name });
       const principalResult = await backend.getPrincipalByUsername(profileData.name);
       logging.logDebug('Principal result', { principalResult });
@@ -108,12 +106,10 @@ function Profile({ contentActor }) {
     setIsFollowLoading(true);
     try {
       // Convert string principal to Principal object
-      const { Principal } = await import('@dfinity/principal');
       const currentUserPrincipal = Principal.fromText(userPrincipal);
       logging.logInfo('Current user principal created', { principal: currentUserPrincipal.toText() });
       
       // Get the principal for the target user
-      const { backend } = await import('../declarations/backend');
       logging.logInfo('Fetching principal for username', { username: profileData.name });
       const principalResult = await backend.getPrincipalByUsername(profileData.name);
       logging.logDebug('Principal result', { principalResult });
@@ -209,7 +205,7 @@ function Profile({ contentActor }) {
   };
 
   useEffect(() => {
-    logger.debug('Profile useEffect triggered', {
+    logging.debug('Profile useEffect triggered', {
       profileData: !!profileData,
       userPrincipal: !!userPrincipal,
       isOwnProfile,
@@ -217,10 +213,10 @@ function Profile({ contentActor }) {
     });
     
     if (profileData && userPrincipal && !isOwnProfile && socialGraphActor) {
-      logger.info('Calling checkFollowStatus');
+      logging.info('Calling checkFollowStatus');
       checkFollowStatus();
     } else {
-      logger.debug('Not calling checkFollowStatus', {
+      logging.debug('Not calling checkFollowStatus', {
         noProfileData: !profileData,
         noUserPrincipal: !userPrincipal,
         isOwnProfile,
@@ -229,15 +225,15 @@ function Profile({ contentActor }) {
     }
   }, [profileData, userPrincipal, isOwnProfile, socialGraphActor]);
 
-    const loadProfileData = async () => {
-    logger.info('loadProfileData called', {
+  const loadProfileData = async () => {
+    logging.info('loadProfileData called', {
       contentActor: !!contentActor,
       username,
       userProfile: userProfile?.name
     });
 
     if (!contentActor) {
-      logger.warn('loadProfileData early return: no contentActor');
+      logging.warn('loadProfileData early return: no contentActor');
       return;
     }
 
@@ -245,13 +241,12 @@ function Profile({ contentActor }) {
     setError(null);
 
     try {
-      logger.debug('Current userProfile', { userProfile });
-      logger.info('Looking for username', { username });
+      logging.debug('Current userProfile', { userProfile });
+      logging.info('Looking for username', { username });
       
       // First, try to get the user's profile from the backend
       let foundProfile = null;
       try {
-        const { backend } = await import('../declarations/backend');
         console.log('🔍 Searching for profile in backend:', username);
         const profileResult = await backend.getUserProfileByUsername(username);
         console.log('📋 Backend profile result:', profileResult);

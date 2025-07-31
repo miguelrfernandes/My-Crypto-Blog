@@ -12,6 +12,7 @@ import HeroSection from './components/HeroSection';
 import AuthUI from './components/AuthUI';
 import PostingInterface from './components/PostingInterface';
 import { AuthProvider } from './contexts/AuthContext';
+import { content, createActor } from './declarations/content';
 
 function App() {
   const [error, setError] = useState(null);
@@ -38,29 +39,26 @@ function App() {
       try {
         console.log('🔄 Initializing content actor...');
 
-        // Try to import the content actor
-        const { content, createActor } = await import('./declarations/content');
-
-        let contentActor = content;
+        let contentActorInstance = content;
 
         // If content is undefined, try to create it manually
-        if (!contentActor) {
+        if (!contentActorInstance) {
           console.log('⚠️ Content actor is undefined, trying to create manually...');
           const canisterId = "u6s2n-gx777-77774-qaaba-cai";
-          contentActor = createActor(canisterId);
+          contentActorInstance = createActor(canisterId);
           console.log('🔧 Created content actor manually with canister ID:', canisterId);
         }
 
-        if (!contentActor) {
+        if (!contentActorInstance) {
           console.error('❌ Failed to create content actor');
           return;
         }
 
-        setContentActor(contentActor);
+        setContentActor(contentActorInstance);
 
         // Test the connection
         try {
-          const testResult = await contentActor.getPosts(1, 0);
+          const testResult = await contentActorInstance.getPosts(1, 0);
           console.log('✅ Content actor initialized successfully:', testResult);
         } catch (testErr) {
           console.error('⚠️ Content actor connection test failed:', testErr);

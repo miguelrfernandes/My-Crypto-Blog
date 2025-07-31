@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NFID } from "@nfid/embed";
 import { HttpAgent } from "@dfinity/agent";
 import { AnonymousIdentity } from "@dfinity/agent";
+import { Ed25519KeyIdentity } from "@dfinity/identity";
 import {
   canisterId,
   createActor,
@@ -100,8 +101,7 @@ function NfidLogin({ setBackendActor }) {
         }
         
         // Create identity from seed
-        const identityModule = await import('@dfinity/identity');
-        const identity = identityModule.Ed25519KeyIdentity.fromSeed(seed);
+        const identity = Ed25519KeyIdentity.fromSeed(seed);
         
         agent = new HttpAgent({ 
           identity: identity,
