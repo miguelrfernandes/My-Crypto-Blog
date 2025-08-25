@@ -19,7 +19,7 @@
   "dependencies": {
     "@dfinity/agent": "2.4.1",
     "@dfinity/auth-client": "2.4.1",
-    "@dfinity/candid": "2.4.1",
+    "@dfinity/candid": "3.2.2",
     "@dfinity/principal": "2.4.1",
     "@nfid/embed": "^0.10.3",
     "lucide-react": "^0.525.0",
